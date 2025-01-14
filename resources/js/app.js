@@ -1,4 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
+import HomeView from './components/Home.vue';
 
-createApp(App).mount('#app');
+const app = createApp(App);
+app.component('HomeView', HomeView);
+app.mount('#app');
