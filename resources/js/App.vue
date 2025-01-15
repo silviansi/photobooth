@@ -1,31 +1,34 @@
 <template>
-    <div id="app">
-      <header class="bg-gray-800 text-white p-4">
-        <h1 class="text-xl font-bold">My Portfolio</h1>
-      </header>
-      <main class="p-4">
-        <HomeView /> 
-      </main>
-      <footer class="bg-gray-800 text-white p-4 text-center">
-        &copy; 2024 My Portfolio
-      </footer>
-    </div>
+  <div id="app">
+    <header class="bg-gray-800 text-white p-4">
+      <h1 class="text-xl font-bold">My Portfolio</h1>
+      <nav>
+        <router-link to="/" style="color: black; margin-right: 10px;">Home</router-link>
+        <router-link to="/about" style="color: black">About</router-link>
+      </nav>
+    </header>
+    <main class="p-4">
+      <router-view></router-view>
+    </main>
+    <footer class="bg-gray-800 text-white p-4 text-center">
+      &copy; 2024 My Portfolio
+    </footer>
+  </div>
 </template>
-  
-<script>
-import HomeView from "./components/Home.vue";
 
+<script>
 export default {
-    name: "App",
-    components: {
-      HomeView,
-    },
+  name: "App",
 };
 </script>
-  
+
 <style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
+nav a {
+  text-decoration: none;
+  color: white;
 }
-</style>  
+
+nav a:hover {
+  text-decoration: underline;
+}
+</style>
