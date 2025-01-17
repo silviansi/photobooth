@@ -1,12 +1,6 @@
 <template>
   <div id="app">
-    <header class="bg-gray-800 text-white p-4">
-      <h1 class="text-xl font-bold">My Portfolio</h1>
-      <nav>
-        <router-link to="/" style="color: black; margin-right: 10px;">Home</router-link>
-        <router-link to="/about" style="color: black">About</router-link>
-      </nav>
-    </header>
+    <Navbar />
     <main class="p-4">
       <router-view></router-view>
     </main>
@@ -17,8 +11,13 @@
 </template>
 
 <script>
+import Navbar from './components/Navbar.vue';
+
 export default {
   name: "App",
+  components: {
+    Navbar,
+  },
 };
 </script>
 
