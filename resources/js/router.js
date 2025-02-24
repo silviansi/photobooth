@@ -1,13 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from './components/Home.vue';
-import AboutView from './components/About.vue';
+import Camera from './components/Camera.vue'; // Ubah path ke components
+import Edit from './components/Edit.vue'; // Jika Edit.vue ada di views
+
+const routes = [
+  { path: '/', component: Camera },
+  { path: '/edit', component: Edit }
+];
 
 const router = createRouter({
-    history: createWebHistory(),
-    routes: [
-        { path: '/', name: 'Home', component: HomeView },
-        { path: '/about', name: 'About', component: AboutView },
-    ],
+  history: createWebHistory(),
+  routes
 });
 
 export default router;
