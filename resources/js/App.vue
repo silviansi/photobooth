@@ -1,7 +1,3 @@
-<script setup>
-import Camera from "./components/Camera.vue";
-</script>
-
 <template>
-  <Camera />
+  <router-view />
 </template>
