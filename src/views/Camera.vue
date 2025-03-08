@@ -1,17 +1,17 @@
 <template>
-  <div class="camera-container">
+  <div class="camera-container flex justify-between items-center mx-auto max-w-5xl p-4">
     <!-- Kamera (Kiri) -->
-    <div class="camera-preview mt-8">
-      <div class="video-wrapper">
-        <video ref="video" autoplay playsinline></video>
+    <div class="camera-preview mt-8 mb-5 flex flex-col items-center">
+      <div class="relative w-[500px] h-[400px] border-2 border-black">
+        <video ref="video" autoplay playsinline class="w-full h-full object-cover transform -scale-x-100"></video>
         <!-- Overlay Idol -->
-        <img v-if="selectedIdols.length > 0" :src="`../overlays/${selectedIdols[currentOverlayIndex]}`" class="overlay" />
+        <img v-if="selectedIdols.length > 0" :src="`../overlays/${selectedIdols[currentOverlayIndex]}`" class="absolute top-0 left-0 w-full h-full object-cover opacity-70 pointer-events-none" />
         <!-- Countdown -->
-        <div v-if="countdown > 0" class="countdown">{{ countdown }}</div>
+        <div v-if="countdown > 0" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl font-bold text-red-500 bg-black bg-opacity-50 px-4 py-2 rounded-lg">{{ countdown }}</div>
       </div>
 
       <!-- Pilih Grup Idol -->
-      <select v-model="selectedGroup">
+      <select v-model="selectedGroup" class="mt-4 p-2 border rounded">
         <option value="" disabled>Pilih Grup Idol</option>
         <option v-for="group in idolGroups" :key="group.name" :value="group.name">
           {{ group.name }}
@@ -19,29 +19,40 @@
       </select>
 
       <!-- Pilih Foto Idol -->
-      <div class="idol-selection" v-if="selectedGroup">
+      <div class="flex flex-wrap gap-2 mt-4" v-if="selectedGroup">
         <div
           v-for="idol in availableIdols"
           :key="idol"
-          class="idol-box"
-          :class="{ selected: selectedIdols.includes(idol) }"
+          class="w-20 h-20 border-2 flex items-center justify-center cursor-pointer rounded-md"
+          :class="{ 'border-blue-500': selectedIdols.includes(idol), 'border-gray-300': !selectedIdols.includes(idol) }"
           @click="toggleIdolSelection(idol)"
         >
-          <img :src="`/overlays/${idol}`" :alt="idol" />
+          <img :src="`/overlays/${idol}`" :alt="idol" class="w-full h-full object-cover rounded-md" />
         </div>
       </div>
 
       <!-- Tombol Ambil Foto -->
-      <button @click="startPhotoCapture" :disabled="selectedIdols.length !== 4">📸 Mulai Foto</button>
+      <button @click="startPhotoCapture" :disabled="selectedIdols.length !== 4" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400">📸 Mulai Foto</button>
     </div>
 
-    <!-- Hasil Foto (Kanan) -->
-    <div class="photo-results">
-      <canvas ref="canvas" style="display: none;"></canvas>
-      <div class="photo-list">
-        <img v-for="(photo, index) in photos" :key="index" :src="photo" class="photo-preview" />
+    <!-- Hasil Foto dalam Format Strip (Kanan) -->
+    <div class="photo-results flex flex-col items-center">
+      <canvas ref="canvas" class="hidden"></canvas>
+      <div class="relative mt-4 p-2 border-4 rounded-lg" :style="{ backgroundColor: stripColor }">
+        <div class="flex flex-col gap-2">
+          <img v-for="(photo, index) in photos" :key="index" :src="photo" class="w-36 rounded-md" />
+        </div>
       </div>
-      <button v-if="photos.length === 4" @click="downloadPhoto">⬇️ Unduh Semua</button>
+      <div class="flex gap-2 mt-4">
+        <input type="color" v-model="stripColor" class="w-10 h-10 cursor-pointer" />
+        <select v-model="selectedFilter" class="p-2 border rounded">
+          <option value="">Tanpa Filter</option>
+          <option value="grayscale">Grayscale</option>
+          <option value="sepia">Sepia</option>
+          <option value="invert">Invert</option>
+        </select>
+      </div>
+      <button v-if="photos.length === 4" @click="downloadPhoto" class="mt-4 px-4 py-2 bg-green-500 text-white rounded">⬇️ Unduh Strip</button>
     </div>
   </div>
 </template>
@@ -60,6 +71,8 @@ export default {
       ],
       photos: [],
       currentOverlayIndex: 0,
+      stripColor: "#ffffff",
+      selectedFilter: "",
     };
   },
   computed: {
@@ -89,8 +102,8 @@ export default {
     },
     startPhotoCapture() {
       if (this.selectedIdols.length === 4) {
-        this.photos = []; // Kosongkan hasil foto sebelumnya
-        this.currentOverlayIndex = 0; // Reset indeks overlay
+        this.photos = [];
+        this.currentOverlayIndex = 0;
         this.countdown = 5;
         this.startCountdown(0);
       }
@@ -107,33 +120,22 @@ export default {
       }
     },
     capturePhoto(index) {
-      if (index >= 4) return; // Stop jika sudah 4 foto
-
+      if (index >= 4) return;
       const video = this.$refs.video;
       const canvas = this.$refs.canvas;
       const ctx = canvas.getContext("2d");
-
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-
-      // Flip gambar agar sesuai dengan kamera depan
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-      // Ambil overlay berdasarkan indeks
       const overlayImg = new Image();
       overlayImg.src = `/overlays/${this.selectedIdols[index]}`;
-      
       overlayImg.onload = () => {
         ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
-        this.photos.push(canvas.toDataURL("image/png")); // Simpan hasil foto
-
-        // Pindah ke overlay berikutnya
+        this.photos.push(canvas.toDataURL("image/png"));
         this.currentOverlayIndex = index + 1;
-
-        // Ambil foto berikutnya setelah 5 detik (jika masih ada overlay)
         if (index + 1 < 4) {
           this.countdown = 5;
           this.startCountdown(index + 1);
@@ -143,95 +145,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.camera-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 900px;
-  margin: auto;
-}
-
-.video-wrapper {
-  position: relative;
-  width: 500px;
-  height: 400px;
-  border: 2px solid black;
-}
-
-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scaleX(-1);
-}
-
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.idol-selection {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
-.idol-box {
-  width: 80px;
-  height: 80px;
-  border: 2px solid gray;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.idol-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.idol-box.selected {
-  border: 2px solid blue;
-}
-
-.photo-results {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.photo-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.photo-preview {
-  width: 150px;
-  border: 2px solid black;
-}
-
-.countdown {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 50px;
-  font-weight: bold;
-  color: red;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 10px;
-  border-radius: 10px;
-}
-</style>
