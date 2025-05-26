@@ -1,30 +1,23 @@
 <template>
-    <div class="h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-300 to-pink-300 text-white">
-      <!-- Header -->
-      <div class="text-center">
-        <h1 class="text-4xl md:text-5xl font-extrabold mb-3 drop-shadow-lg">Welcome to FantasyFrame! 🎉</h1>
-        <p class="text-lg md:text-xl text-white/90">Capture your best moments with your bias & stylish frames!</p>
-      </div>
-  
-      <!-- Ilustrasi -->
-      <div class="mt-8">
-        <img :src="`${publicPath}images/photo.webp`" alt="PhotoBooth Illustration" class="w-64 md:w-80 drop-shadow-lg rounded-lg">
-      </div>
-  
-      <!-- Tombol Mulai -->
-      <router-link to="/camera"
-        class="mt-6 px-8 py-4 bg-yellow-400 text-purple-800 font-bold text-xl rounded-full shadow-lg hover:bg-yellow-500 transition-transform transform hover:scale-105">
-        Start PhotoBooth 🚀
+  <div
+    class="relative min-h-screen bg-cover bg-center text-white flex items-center justify-center"
+    style="background-image: url('/images/bg-utama.png');"
+  >
+    <!-- Overlay gelap untuk kontras teks -->
+    <div class="absolute inset-0 bg-black bg-opacity-60 z-10"></div>
+
+    <!-- Konten Tengah -->
+    <div class="z-20 text-center px-6">
+      <h1 class="text-3xl md:text-5xl font-bold mb-4">Selamat Datang di</h1>
+      <h2 class="text-4xl md:text-6xl font-extrabold tracking-wide text-yellow-400 mb-6">PHOTOBOOTH</h2>
+      <p class="text-lg md:text-xl italic mb-8 text-amber-200">Abadikan Momen Layaknya Sebuah Pertunjukan</p>
+      <router-link to="/camera">
+        <button
+        class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded-full shadow-md transition"
+        >
+          MULAI
+        </button>
       </router-link>
     </div>
+  </div>
 </template>
-  
-<script>
-  export default {
-    computed: {
-      publicPath() {
-        return import.meta.env.BASE_URL || "/";
-      }
-    }
-  };
-</script>  
